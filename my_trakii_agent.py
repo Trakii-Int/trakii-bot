@@ -39,6 +39,7 @@ prompt_instructions = {
         "location": "When the user asks about GPS coordinates, location, where the device is, or any synonym for the above on English or Spanish.",
         "speed": "When the user asks about how fast the device is going, current speed, or any synonym for the above on English or Spanish.",
         "status": "When the user asks whether the device is online, the battery level, last time it reported data, or any synonym for the above on English or Spanish.",
+        "list": "When the user asks to list all devices, see available GPS trackers, or get a catalog of registered units.",
         "ignore": "If the message is not related to location, speed or status.",
     },
     "agent_instructions": "Classify incoming Telegram messages into the correct type of request for a GPS tracking system.",
@@ -50,7 +51,7 @@ llm = init_chat_model("openai:gpt-4o-mini")
 
 class Router(BaseModel):
     reasoning: str = Field(description="Step-by-step reasoning behind the classification.")
-    classification: Literal["location", "speed", "status", "ignore"] = Field(description="The type of query requested by the user")
+    classification: Literal["location", "speed", "status", "list", "ignore"] = Field(description="The type of query requested by the user")
 
 llm_router = llm.with_structured_output(Router)
 
@@ -59,7 +60,7 @@ class State(TypedDict):
     messages: Annotated[list, add_messages]
 
 # === Routing function ===
-def triage_router(state: State, config, store) -> Command[Literal["handle_location", "handle_speed", "handle_status", "handle_ignore"]]:
+def triage_router(state: State, config, store) -> Command[Literal["handle_location", "handle_speed", "handle_status", "handle_list", "handle_ignore"]]:
     message = state['user_input']['message']
     langgraph_user_id = config['configurable']['langgraph_user_id']
 
@@ -71,6 +72,7 @@ def triage_router(state: State, config, store) -> Command[Literal["handle_locati
         triage_location=rules["location"],
         triage_speed=rules["speed"],
         triage_status=rules["status"],
+        triage_list=rules["list"],
         triage_no=rules["ignore"],
         name=profile["name"],
         examples=None,
@@ -202,6 +204,36 @@ def handle_status(state: State):
 
     return {"messages": [{"role": "assistant", "content": content}]}
 
+def handle_list(state: State):
+    print("📋 Handling list devices query...")
+
+    try:
+        response = requests.get(
+            f"{TRACCAR_URL}/api/devices",
+            auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+        )
+        response.raise_for_status()
+        devices = response.json()
+
+        if not devices:
+            content = "No se encontraron dispositivos registrados."
+        else:
+            lines = ["📋 Lista de dispositivos registrados:"]
+            for d in devices:
+                lines.append(f"- {d['name']} (ID: {d['id']})")
+            content = "\n".join(lines)
+
+    except Exception as e:
+        print("❌ Error:", e)
+        content = "Ocurrió un error al obtener la lista de dispositivos."
+
+    return {
+        "messages": [
+            {"role": "assistant", "content": content}
+        ]
+    }
+
+
 def handle_ignore(state: State):
     print("🚫 Handling ignored query...")
     return {"messages": [{"role": "assistant", "content": "Lo siento, no entendí tu consulta. Puedes preguntarme por la ubicación, velocidad o estado de un dispositivo."}]}
@@ -212,12 +244,14 @@ agent_graph.add_node("triage_router", triage_router)
 agent_graph.add_node("handle_location", handle_location)
 agent_graph.add_node("handle_speed", handle_speed)
 agent_graph.add_node("handle_status", handle_status)
+agent_graph.add_node("handle_list", handle_list)
 agent_graph.add_node("handle_ignore", handle_ignore)
 
 agent_graph.add_edge(START, "triage_router")
 agent_graph.add_edge("handle_location", END)
 agent_graph.add_edge("handle_speed", END)
 agent_graph.add_edge("handle_status", END)
+agent_graph.add_edge("handle_list", END)
 agent_graph.add_edge("handle_ignore", END)
 
 agent = agent_graph.compile()
