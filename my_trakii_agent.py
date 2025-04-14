@@ -193,11 +193,11 @@ def handle_status(state: State):
             content = (
                 f"📡 Estado del dispositivo '{matched_device['name']}':\n"
                 f"```\n"
-                f"🕒 Fix Time       {fix_time_str}\n"
-                f"📍 Distancia      {total_distance} km\n"
-                f"🔋 Nivel de la batería        {battery_level}%\n"
-                f"🔋 Voltaje de la batería        {battery}%\n"
-                f"🚗 Movimiento     {motion_status}\n"
+                f"🕒 Fix Time               {fix_time_str}\n"
+                f"📍 Distancia              {total_distance} km\n"
+                f"🔋 Nivel de la batería    {battery_level}%\n"
+                f"🔋 Voltaje de la batería  {battery}%\n"
+                f"🚗 Movimiento             {motion_status}\n"
                 f"```"
             )
     except Exception as e:
