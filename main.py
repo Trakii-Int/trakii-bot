@@ -12,7 +12,7 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-AUTHORIZED_USERS = [1002, 1001]
+AUTHORIZED_USERS = [1002, 10012]
 # Manejar mensajes normales
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
