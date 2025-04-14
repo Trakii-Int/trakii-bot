@@ -177,7 +177,8 @@ def handle_status(state: State):
             ).json()[0]
 
             attributes = position.get("attributes", {})
-            battery = attributes.get("batteryLevel", "No disponible")
+            battery_level = attributes.get("batteryLevel", "No disponible")
+            battery = attributes.get("battery", "No disponible")
             total_distance = round(attributes.get("totalDistance", 0) / 1000, 2)
 
             fix_time = position.get("fixTime")
@@ -194,7 +195,8 @@ def handle_status(state: State):
                 f"```\n"
                 f"🕒 Fix Time       {fix_time_str}\n"
                 f"📍 Distancia      {total_distance} km\n"
-                f"🔋 Batería        {battery}%\n"
+                f"🔋 Nivel de la batería        {battery_level}%\n"
+                f"🔋 Voltaje de la batería        {battery}%\n"
                 f"🚗 Movimiento     {motion_status}\n"
                 f"```"
             )
