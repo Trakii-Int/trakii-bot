@@ -12,8 +12,15 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
+AUTHORIZED_USERS = [002, 001]
 # Manejar mensajes normales
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+
+    if user_id not in AUTHORIZED_USERS:
+        await update.message.reply_text("❌ Acceso no autorizado. Contacta con el administrador.")
+        return
+  
     user_text = update.message.text
     print(f"📩 Mensaje recibido: {user_text}")
 
