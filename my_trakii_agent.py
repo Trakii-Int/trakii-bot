@@ -196,7 +196,7 @@ def handle_status(state: State):
                 f"🕒 Fix Time               {fix_time_str}\n"
                 f"📍 Distancia              {total_distance} km\n"
                 f"🔋 Nivel de la batería    {battery_level}%\n"
-                f"🔋 Voltaje de la batería  {battery}%\n"
+                f"🔋 Voltaje de la batería  {battery} V\n"
                 f"🚗 Movimiento             {motion_status}\n"
                 f"```"
             )
