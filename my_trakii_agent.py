@@ -12,6 +12,8 @@ from langgraph.types import Command
 from langgraph.graph import add_messages, StateGraph, START, END
 from langgraph.store.memory import InMemoryStore
 
+from log_config import bot_logger, error_logger
+
 from prompts import triage_system_prompt, triage_user_prompt
 
 # === Load environment variables ===
@@ -84,9 +86,9 @@ def triage_router(state: State, config, store) -> Command[Literal["handle_locati
         {"role": "user", "content": user_prompt},
     ])
 
-    print(f"🧠 Reasoning: {result.reasoning}")
-    print(f"📦 Classified as: {result.classification}")
-
+    #print(f"🧠 Reasoning: {result.reasoning}")
+    #print(f"📦 Classified as: {result.classification}")
+    bot_logger.info(f"[TRIAGE] Clasificación: {result.classification}")
     return Command(
         goto=f"handle_{result.classification}",
         update={"messages": [{"role": "user", "content": message}]}
