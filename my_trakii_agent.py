@@ -86,9 +86,9 @@ def triage_router(state: State, config, store) -> Command[Literal["handle_locati
         {"role": "user", "content": user_prompt},
     ])
 
-    #print(f"🧠 Reasoning: {result.reasoning}")
-    #print(f"📦 Classified as: {result.classification}")
-    bot_logger.info(f"[TRIAGE] Clasificación: {result.classification}")
+    print(f"🧠 Reasoning: {result.reasoning}")
+    print(f"📦 Classified as: {result.classification}")
+    #bot_logger.info(f"[TRIAGE] Clasificación: {result.classification}")
     return Command(
         goto=f"handle_{result.classification}",
         update={"messages": [{"role": "user", "content": message}]}
