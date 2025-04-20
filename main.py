@@ -2,6 +2,7 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from dotenv import load_dotenv
+from log_config import bot_logger, error_logger
 import requests
 
 # LangGraph Agent
@@ -22,22 +23,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
   
     user_text = update.message.text
-    print(f"📩 Mensaje recibido: {user_text}")
+    bot_logger.info(f"[INPUT] UserID: {user_id} - Message: {user_text}")
 
-    state_input = {
-        "user_input": {"message": user_text}
-    }
 
-    result = agent.invoke(state_input, config=config)
+    try:
+        result = agent.invoke({"user_input": {"message": user_text}}, config=config)
 
-    # Obtener última respuesta del agente
-    response = ""
-    for m in result["messages"]:
-        if hasattr(m, "content"):
-            response = m.content
+        for m in result["messages"]:
+            if hasattr(m, "content"):
+                bot_logger.info(f"[OUTPUT] Triage & Response: {m.content}")
+                await update.message.reply_text(m.content, parse_mode="Markdown")
+                break
 
-    print(f"🤖 Respuesta: {response}")
-    await update.message.reply_text(response, parse_mode="Markdown")
+    except Exception as e:
+        error_logger.error(f"❌ Error en handle_message: {e}", exc_info=True)
+        await update.message.reply_text("Ha ocurrido un error inesperado.")
 
 # Comando /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
