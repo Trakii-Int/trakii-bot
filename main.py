@@ -17,48 +17,43 @@ AUTHORIZED_USERS = [7434126358, 289677525, 6779730126]
 # Manejar mensajes normales
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    user_text = update.message.text.strip()  # 🧼 Elimina espacios innecesarios
 
+    # Verifica si el usuario está autorizado
     if user_id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Acceso no autorizado. Contacta con el administrador.")
         return
-  
-    user_text = update.message.text
+
+    # Log de entrada del usuario
     bot_logger.info(f"[INPUT] UserID: {user_id} - Message: {user_text}")
- 
-    state_input = {
-        "user_input": {"message": user_text}
-    }
+
+    state_input = {"user_input": {"message": user_text}}
 
     try:
-        
+        # Ejecutar el agente de LangGraph
         result = agent.invoke(state_input, config=config)
-        response = ""
+       
+        # Obtener la respuesta del agente
+        response = next(
+            (
+                m.content
+                for m in result["messages"]
+                if hasattr(m, "content")
+            ),
+            "⚠️ Sin respuesta."
+        )
 
-        
-        for m in result["messages"]:
-            if hasattr(m, "content"):
-          
-                response = m.content
+
+        # Log de salida del agente
         bot_logger.info(f"[OUTPUT] Triage & Response: {response}")
+
+        # Respuesta al usuario
         await update.message.reply_text(response, parse_mode="Markdown")
 
     except Exception as e:
+        # Log de error y respuesta al usuario
         error_logger.error(f"❌ Error en handle_message: {e}", exc_info=True)
-        await update.message.reply_text("Ha ocurrido un error inesperado.")
-
-
-#    result = agent.invoke(state_input, config=config)
-
-    # Obtener última respuesta del agente
-#    response = ""
-#    for m in result["messages"]:
-#        if hasattr(m, "content"):
-#            response = m.content
-
-#    print(f"🤖 Respuesta: {response}")
-#    await update.message.reply_text(response, parse_mode="Markdown")
-
-
+        await update.message.reply_text("⚠️ Ha ocurrido un error inesperado. Por favor intenta más tarde.")
 
 # Comando /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
