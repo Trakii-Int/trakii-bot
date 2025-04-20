@@ -24,15 +24,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
   
     user_text = update.message.text
     bot_logger.info(f"[INPUT] UserID: {user_id} - Message: {user_text}")
-
+ 
+    state_input = {
+        "user_input": {"message": user_text}
+    }
 
     try:
-        result = agent.invoke({"user_input": {"message": user_text}}, config=config)
+        
+        result = agent.invoke(state_input, config=config)
+        response = ""
 
+        
         for m in result["messages"]:
             if hasattr(m, "content"):
-                bot_logger.info(f"[OUTPUT] Triage & Response: {m.content}")
-                await update.message.reply_text(m.content, parse_mode="Markdown")
+                
+                response = m.content
+                bot_logger.info(f"[OUTPUT] Triage & Response: {response}")
+                await update.message.reply_text(response, parse_mode="Markdown")
                 break
 
     except Exception as e:
