@@ -32,18 +32,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Ejecutar el agente de LangGraph
         result = agent.invoke(state_input, config=config)
-       
+        response = ""
         # Obtener la respuesta del agente
-        response = next(
-            (
-                m.content
-                for m in result["messages"]
-                if hasattr(m, "content")
-            ),
-            "⚠️ Sin respuesta."
-        )
-
-
+        response = next((m.content for m in result["messages"] if hasattr(m, "content")), "⚠️ Sin respuesta.")
+  
         # Log de salida del agente
         bot_logger.info(f"[OUTPUT] Triage & Response: {response}")
 
