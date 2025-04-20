@@ -29,35 +29,34 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "user_input": {"message": user_text}
     }
 
-#    try:
-#        
-#        result = agent.invoke(state_input, config=config)
-#        response = ""
-#
-#        
-#        for m in result["messages"]:
-#            if hasattr(m, "content"):
-#                
-#                response = m.content
-#                bot_logger.info(f"[OUTPUT] Triage & Response: {response}")
-#                await update.message.reply_text(response, parse_mode="Markdown")
-#                break
-#
-#    except Exception as e:
-#        error_logger.error(f"❌ Error en handle_message: {e}", exc_info=True)
-#        await update.message.reply_text("Ha ocurrido un error inesperado.")
+    try:
+        
+        result = agent.invoke(state_input, config=config)
+        response = ""
+
+        
+        for m in result["messages"]:
+            if hasattr(m, "content"):
+          
+                response = m.content
+        bot_logger.info(f"[OUTPUT] Triage & Response: {response}")
+        await update.message.reply_text(response, parse_mode="Markdown")
+
+    except Exception as e:
+        error_logger.error(f"❌ Error en handle_message: {e}", exc_info=True)
+        await update.message.reply_text("Ha ocurrido un error inesperado.")
 
 
-    result = agent.invoke(state_input, config=config)
+#    result = agent.invoke(state_input, config=config)
 
     # Obtener última respuesta del agente
-    response = ""
-    for m in result["messages"]:
-        if hasattr(m, "content"):
-            response = m.content
+#    response = ""
+#    for m in result["messages"]:
+#        if hasattr(m, "content"):
+#            response = m.content
 
-    print(f"🤖 Respuesta: {response}")
-    await update.message.reply_text(response, parse_mode="Markdown")
+#    print(f"🤖 Respuesta: {response}")
+#    await update.message.reply_text(response, parse_mode="Markdown")
 
 
 
