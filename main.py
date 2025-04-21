@@ -38,7 +38,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 response = message.content  # guarda el último válido
 
         # Log de salida del agente
-        bot_logger.info(f"[OUTPUT] Triage & Response: {response}")
+        bot_logger.info(f"[OUTPUT] UserID: {user_id} - Triage & Response: {response}")
 
         # Respuesta al usuario
         await update.message.reply_text(response, parse_mode="Markdown")
