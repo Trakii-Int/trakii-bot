@@ -49,9 +49,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ Ha ocurrido un error inesperado. Por favor intenta más tarde.")
 
 # Comando /start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("¡Hola! Soy TrakiiBot. Puedes preguntarme por la ubicación, velocidad o estado de tus dispositivos.")
-
+#async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#    await update.message.reply_text("¡Hola! Soy TrakiiBot. Puedes preguntarme por la ubicación, velocidad o estado de tus dispositivos.")
+async def start(update, context):
+    greeting = "¡Hola! 😊 Soy *TrakiiBot*, tu asistente de rastreo GPS."
+    capabilities = (
+        "Puedo ayudarte con:\n"
+        "- 📍 Ubicación\n"
+        "- 🚗 Velocidad\n"
+        "- 🔋 Estado (batería, movimiento, distancia)\n"
+        "- 📋 Listar dispositivos\n\n"
+        "¿Qué necesitas hoy?"
+    )
+    await update.message.reply_markdown(f"{greeting}\n\n{capabilities}")
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
