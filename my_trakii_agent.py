@@ -8,8 +8,8 @@ from typing_extensions import TypedDict, Literal, Annotated
 from pydantic import BaseModel, Field
 
 from langchain.chains import RetrievalQA
-from langchain.vectorstores import Chroma
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import OpenAIEmbeddings
 
 from langchain.chat_models import init_chat_model
 from langgraph.types import Command
@@ -26,10 +26,6 @@ _ = load_dotenv()
 TRACCAR_URL = os.getenv("TRACCAR_URL")
 TRACCAR_USERNAME = os.getenv("TRACCAR_USERNAME")
 TRACCAR_PASSWORD = os.getenv("TRACCAR_PASSWORD")
-
-# Configura RAG
-vectordb = Chroma(persist_directory="knowledge_db", embedding_function=OpenAIEmbeddings())
-qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vectordb.as_retriever())
 
 # === Agent profile and prompt instructions ===
 profile = {
@@ -59,6 +55,10 @@ prompt_instructions = {
 # === LangGraph memory and model setup ===
 store = InMemoryStore(index={"embed": "openai:text-embedding-3-small"})
 llm = init_chat_model("openai:gpt-4o-mini")
+
+# Configura RAG
+vectordb = Chroma(persist_directory="knowledge_db", embedding_function=OpenAIEmbeddings())
+qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vectordb.as_retriever())
 
 class Router(BaseModel):
     reasoning: str = Field(description="Step-by-step reasoning behind the classification.")
