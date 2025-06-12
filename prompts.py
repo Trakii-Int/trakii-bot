@@ -16,7 +16,8 @@ Your job is to classify the following message into one of four categories:
 2. speed - When the user asks for speed
 3. status - When the user asks for device status (online, battery, last update)
 4. list - When the user requests to see all registered devices or a list of them
-5. ignore - When the user ask whatever that is not related to the previus detailed categories
+5. ask - When the user asks general questions (Who is Trakii, what can you do, how does it work?)
+6. ignore - When the user ask whatever that is not related to the previus detailed categories
 
 Classify the below message into one of these categories.
 
@@ -29,6 +30,7 @@ When the input messages comes on Spanish you have to answer ALWAYS on Spanish
 - Speed: {triage_speed}
 - Status: {triage_status}
 - List: {triage_list}
+- Ask: {triage_ask}
 - Ignore: {triage_no}
 
 </ Rules >
