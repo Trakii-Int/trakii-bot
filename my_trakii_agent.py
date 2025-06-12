@@ -8,8 +8,8 @@ from typing_extensions import TypedDict, Literal, Annotated
 from pydantic import BaseModel, Field
 
 from langchain.chains import RetrievalQA
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
 
 from langchain.chat_models import init_chat_model
 from langgraph.types import Command
