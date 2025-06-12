@@ -84,7 +84,7 @@ def triage_router(state: State, config, store) -> Command[Literal["handle_locati
         triage_speed=rules["speed"],
         triage_status=rules["status"],
         triage_list=rules["list"],
-        triage_ask=rules["ask"]
+        triage_ask=rules["ask"],
         triage_no=rules["ignore"],
         name=profile["name"],
         examples=None,
