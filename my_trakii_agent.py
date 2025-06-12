@@ -28,8 +28,8 @@ TRACCAR_USERNAME = os.getenv("TRACCAR_USERNAME")
 TRACCAR_PASSWORD = os.getenv("TRACCAR_PASSWORD")
 
 # Configura RAG
-vectordb = Chroma(persist_directory="knowledge_db", embedding_function=OpenAIEmbeddings())]({"attribution":{"attributableIndex":"0-12"}})
-qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vectordb.as_retriever())]({"attribution":{"attributableIndex":"0-13"}})
+vectordb = Chroma(persist_directory="knowledge_db", embedding_function=OpenAIEmbeddings())
+qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vectordb.as_retriever())
 
 # === Agent profile and prompt instructions ===
 profile = {
