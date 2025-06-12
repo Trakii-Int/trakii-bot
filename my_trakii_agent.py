@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 from typing_extensions import TypedDict, Literal, Annotated
 from pydantic import BaseModel, Field
 
+from langchain.chains import RetrievalQA
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+
 from langchain.chat_models import init_chat_model
 from langgraph.types import Command
 from langgraph.graph import add_messages, StateGraph, START, END
@@ -22,6 +26,10 @@ _ = load_dotenv()
 TRACCAR_URL = os.getenv("TRACCAR_URL")
 TRACCAR_USERNAME = os.getenv("TRACCAR_USERNAME")
 TRACCAR_PASSWORD = os.getenv("TRACCAR_PASSWORD")
+
+# Configura RAG
+vectordb = Chroma(persist_directory="knowledge_db", embedding_function=OpenAIEmbeddings())]({"attribution":{"attributableIndex":"0-12"}})
+qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vectordb.as_retriever())]({"attribution":{"attributableIndex":"0-13"}})
 
 # === Agent profile and prompt instructions ===
 profile = {
@@ -42,7 +50,8 @@ prompt_instructions = {
         "speed": "When the user asks about how fast the device is going, current speed, or any synonym for the above on English or Spanish.",
         "status": "When the user asks whether the device is online, the battery level, last time it reported data, or any synonym for the above on English or Spanish.",
         "list": "When the user asks to list all devices, see available GPS trackers, or get a catalog of registered units.",
-        "ignore": "If the message is not related to location, speed or status.",
+        "ask": "When the user asks general questions (Who is Trakii, what can you do, how does it work?).",
+        "ignore": "If the message is not related to location, speed or status.",  
     },
     "agent_instructions": "Classify incoming Telegram messages into the correct type of request for a GPS tracking system.",
 }
@@ -53,7 +62,7 @@ llm = init_chat_model("openai:gpt-4o-mini")
 
 class Router(BaseModel):
     reasoning: str = Field(description="Step-by-step reasoning behind the classification.")
-    classification: Literal["location", "speed", "status", "list", "ignore"] = Field(description="The type of query requested by the user")
+    classification: Literal["location", "speed", "status", "list", "ask", "ignore"] = Field(description="The type of query requested by the user")
 
 llm_router = llm.with_structured_output(Router)
 
@@ -62,7 +71,7 @@ class State(TypedDict):
     messages: Annotated[list, add_messages]
 
 # === Routing function ===
-def triage_router(state: State, config, store) -> Command[Literal["handle_location", "handle_speed", "handle_status", "handle_list", "handle_ignore"]]:
+def triage_router(state: State, config, store) -> Command[Literal["handle_location", "handle_speed", "handle_status", "handle_list", "handle_ask", "handle_ignore"]]:
     message = state['user_input']['message']
     langgraph_user_id = config['configurable']['langgraph_user_id']
 
@@ -75,6 +84,7 @@ def triage_router(state: State, config, store) -> Command[Literal["handle_locati
         triage_speed=rules["speed"],
         triage_status=rules["status"],
         triage_list=rules["list"],
+        triage_ask=rules["ask"]
         triage_no=rules["ignore"],
         name=profile["name"],
         examples=None,
@@ -237,7 +247,16 @@ def handle_list(state: State):
         ]
     }
 
-
+def handle_ask(state: State):
+    user_text = state["messages"][-1].content
+    try:
+        answer = qa_chain.run(user_text)
+        content = answer
+    except Exception as e:
+        error_logger.error(f"RAG error: {e}", exc_info=True)
+        content = "Lo siento, no pude recuperar esa información ahora."
+    return {"messages":[{"role":"assistant","content":content}]}
+    
 def handle_ignore(state: State):
     print("🚫 Handling ignored query...")
     return {"messages": [{"role": "assistant", "content": "Lo siento, no entendí tu consulta. Puedes preguntarme por la ubicación, velocidad o estado de un dispositivo."}]}
@@ -249,6 +268,7 @@ agent_graph.add_node("handle_location", handle_location)
 agent_graph.add_node("handle_speed", handle_speed)
 agent_graph.add_node("handle_status", handle_status)
 agent_graph.add_node("handle_list", handle_list)
+agent_graph.add_node("handle_ask", handle_ask)
 agent_graph.add_node("handle_ignore", handle_ignore)
 
 agent_graph.add_edge(START, "triage_router")
@@ -256,6 +276,7 @@ agent_graph.add_edge("handle_location", END)
 agent_graph.add_edge("handle_speed", END)
 agent_graph.add_edge("handle_status", END)
 agent_graph.add_edge("handle_list", END)
+agent_graph.add_edge("handle_ask", END)
 agent_graph.add_edge("handle_ignore", END)
 
 agent = agent_graph.compile()
