@@ -62,7 +62,7 @@ python main.py
 Para guardar la salida (incluidos los logs y errores):
 
 ```bash
-python main.py > output.log 2>&1
+python -u main.py >> output.log 2>&1
 ```
 
 ## Requisitos
