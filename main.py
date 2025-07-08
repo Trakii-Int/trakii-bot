@@ -13,22 +13,53 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-AUTHORIZED_USERS = [7434126358, 289677525, 6779730126, 551723663, 7248786725 ]
+# AUTHORIZED_USERS = [7434126358, 289677525, 6779730126, 551723663, 7248786725 ]
+
+# Diccionario de usuarios autorizados y credenciales Traccar
+USER_CREDENTIALS = {
+    7434126358: {
+        "username": os.getenv("TRACCAR_USER_7434126358"),
+        "password": os.getenv("TRACCAR_PASS_7434126358"),
+    },
+    289677525: {
+        "username": os.getenv("TRACCAR_USER_289677525"),
+        "password": os.getenv("TRACCAR_PASS_289677525"),
+    },
+    # Agrega más usuarios según sea necesario
+}
+
 # Manejar mensajes normales
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_text = update.message.text.strip()  # 🧼 Elimina espacios innecesarios
 
     # Verifica si el usuario está autorizado
+#    if user_id not in AUTHORIZED_USERS:
+#        await update.message.reply_text("❌ Acceso no autorizado. Contacta con el administrador.")
+#        return
+
     if user_id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Acceso no autorizado. Contacta con el administrador.")
         return
+    # Extrae credenciales del usuario
+    credentials = USER_CREDENTIALS[user_id]
+    traccar_username = credentials["username"]
+    traccar_password = credentials["password"]
 
     # Log de entrada del usuario
     bot_logger.info(f"[INPUT] UserID: {user_id} - Message: {user_text}")
 
     state_input = {"user_input": {"message": user_text}}
 
+   # Configuración personalizada para LangGraph Agent
+    config = {
+        "configurable": {
+            "langgraph_user_id": f"telegram-{user_id}",
+            "traccar_username": traccar_username,
+            "traccar_password": traccar_password,
+        }
+    }
+    
     try:
         # Ejecutar el agente de LangGraph
         result = agent.invoke(state_input, config=config)
