@@ -7,7 +7,7 @@ import requests
 
 # LangGraph Agent
 from my_trakii_agent import agent  
-config = {"configurable": {"langgraph_user_id": "telegram-user"}} 
+# config = {"configurable": {"langgraph_user_id": "telegram-user"}} 
 
 load_dotenv()
 
