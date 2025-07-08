@@ -24,8 +24,8 @@ from prompts import triage_system_prompt, triage_user_prompt
 _ = load_dotenv()
 
 TRACCAR_URL = os.getenv("TRACCAR_URL")
-TRACCAR_USERNAME = os.getenv("TRACCAR_USERNAME")
-TRACCAR_PASSWORD = os.getenv("TRACCAR_PASSWORD")
+#TRACCAR_USERNAME = os.getenv("TRACCAR_USERNAME")
+#TRACCAR_PASSWORD = os.getenv("TRACCAR_PASSWORD")
 
 # === Agent profile and prompt instructions ===
 profile = {
@@ -110,10 +110,18 @@ def handle_location(state: State):
     print("📍 Handling location query...")
     user_message = state["messages"][-1].content.lower()
 
+ # 🔐 Obtén credenciales personalizadas desde el config
+    traccar_username = config["configurable"].get("traccar_username")
+    traccar_password = config["configurable"].get("traccar_password")
+
+    if not traccar_username or not traccar_password:
+        return {"messages": [{"role": "assistant", "content": "⚠️ No se configuraron credenciales para Traccar."}]}
+
+    
     try:
         devices = requests.get(
             f"{TRACCAR_URL}/api/devices",
-            auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+            auth=HTTPBasicAuth(traccar_username, traccar_password)
         ).json()
 
         matched_device = next((d for d in devices if d["name"].lower() in user_message or str(d["id"]) in user_message), None)
@@ -123,7 +131,7 @@ def handle_location(state: State):
         else:
             position = requests.get(
                 f"{TRACCAR_URL}/api/positions/?id={matched_device['positionId']}",
-                auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+                auth=HTTPBasicAuth(traccar_username, traccar_password)
             ).json()[0]
 
             latitude = position["latitude"]
@@ -143,11 +151,18 @@ def handle_location(state: State):
 def handle_speed(state: State):
     print("🚗 Handling speed query...")
     user_message = state["messages"][-1].content.lower()
+ # 🔐 Obtén credenciales personalizadas desde el config
+    traccar_username = config["configurable"].get("traccar_username")
+    traccar_password = config["configurable"].get("traccar_password")
 
+    if not traccar_username or not traccar_password:
+        return {"messages": [{"role": "assistant", "content": "⚠️ No se configuraron credenciales para Traccar."}]}
+
+    
     try:
         devices = requests.get(
             f"{TRACCAR_URL}/api/devices",
-            auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+            auth=HTTPBasicAuth(traccar_username, traccar_password)
         ).json()
 
         matched_device = next((d for d in devices if d["name"].lower() in user_message or str(d["id"]) in user_message), None)
@@ -157,7 +172,7 @@ def handle_speed(state: State):
         else:
             position = requests.get(
                 f"{TRACCAR_URL}/api/positions/?id={matched_device['positionId']}",
-                auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+                auth=HTTPBasicAuth(traccar_username, traccar_password)
             ).json()[0]
 
             speed_kph = round(position["speed"] * 1.852, 1)
@@ -172,10 +187,19 @@ def handle_status(state: State):
     print("🔋 Handling status query...")
     user_message = state["messages"][-1].content.lower()
 
+     # 🔐 Obtén credenciales personalizadas desde el config
+    traccar_username = config["configurable"].get("traccar_username")
+    traccar_password = config["configurable"].get("traccar_password")
+
+    if not traccar_username or not traccar_password:
+        return {"messages": [{"role": "assistant", "content": "⚠️ No se configuraron credenciales para Traccar."}]}
+
+    
+
     try:
         devices = requests.get(
             f"{TRACCAR_URL}/api/devices",
-            auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+            auth=HTTPBasicAuth(traccar_username, traccar_password)
         ).json()
 
         matched_device = next((d for d in devices if d["name"].lower() in user_message or str(d["id"]) in user_message), None)
@@ -185,7 +209,7 @@ def handle_status(state: State):
         else:
             position = requests.get(
                 f"{TRACCAR_URL}/api/positions/?id={matched_device['positionId']}",
-                auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+                auth=HTTPBasicAuth(traccar_username, traccar_password)
             ).json()[0]
 
             attributes = position.get("attributes", {})
@@ -221,10 +245,19 @@ def handle_status(state: State):
 def handle_list(state: State):
     print("📋 Handling list devices query...")
 
+     # 🔐 Obtén credenciales personalizadas desde el config
+    traccar_username = config["configurable"].get("traccar_username")
+    traccar_password = config["configurable"].get("traccar_password")
+
+    if not traccar_username or not traccar_password:
+        return {"messages": [{"role": "assistant", "content": "⚠️ No se configuraron credenciales para Traccar."}]}
+
+    
+
     try:
         response = requests.get(
             f"{TRACCAR_URL}/api/devices",
-            auth=HTTPBasicAuth(TRACCAR_USERNAME, TRACCAR_PASSWORD)
+            auth=HTTPBasicAuth(traccar_username, traccar_password)
         )
         response.raise_for_status()
         devices = response.json()
