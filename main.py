@@ -25,6 +25,10 @@ USER_CREDENTIALS = {
         "username": os.getenv("TRACCAR_USER_E1"),
         "password": os.getenv("TRACCAR_PASS_E1"),
     },
+    7248786725: {
+        "username": os.getenv("TRACCAR_USER_E1"),
+        "password": os.getenv("TRACCAR_PASS_E1"),
+    },
     # Agrega más usuarios según sea necesario
 }
 
