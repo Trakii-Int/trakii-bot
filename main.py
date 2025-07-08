@@ -38,10 +38,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #        await update.message.reply_text("❌ Acceso no autorizado. Contacta con el administrador.")
 #        return
 
-    if user_id not in AUTHORIZED_USERS:
+    if user_id not in USER_CREDENTIALS:
         await update.message.reply_text("❌ Acceso no autorizado. Contacta con el administrador.")
-        return
-    # Extrae credenciales del usuario
+        return    # Extrae credenciales del usuario
     credentials = USER_CREDENTIALS[user_id]
     traccar_username = credentials["username"]
     traccar_password = credentials["password"]
