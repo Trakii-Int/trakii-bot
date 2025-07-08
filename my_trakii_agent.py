@@ -106,7 +106,7 @@ def triage_router(state: State, config, store) -> Command[Literal["handle_locati
 
 # === 🛰️ Handler functions ===
 
-def handle_location(state: State):
+def handle_location(state: State, config):
     print("📍 Handling location query...")
     user_message = state["messages"][-1].content.lower()
 
@@ -148,7 +148,7 @@ def handle_location(state: State):
 
     return {"messages": [{"role": "assistant", "content": content}]}
 
-def handle_speed(state: State):
+def handle_speed(state: State, config):
     print("🚗 Handling speed query...")
     user_message = state["messages"][-1].content.lower()
  # 🔐 Obtén credenciales personalizadas desde el config
@@ -183,7 +183,7 @@ def handle_speed(state: State):
 
     return {"messages": [{"role": "assistant", "content": content}]}
 
-def handle_status(state: State):
+def handle_status(state: State, config):
     print("🔋 Handling status query...")
     user_message = state["messages"][-1].content.lower()
 
@@ -242,7 +242,7 @@ def handle_status(state: State):
 
     return {"messages": [{"role": "assistant", "content": content}]}
 
-def handle_list(state: State):
+def handle_list(state: State, config):
     print("📋 Handling list devices query...")
 
      # 🔐 Obtén credenciales personalizadas desde el config
