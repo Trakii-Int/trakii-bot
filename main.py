@@ -17,18 +17,22 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # Diccionario de usuarios autorizados y credenciales Traccar
 USER_CREDENTIALS = {
+    #Robert user
     7434126358: {
         "username": os.getenv("TRACCAR_USER_ROBERT"),
         "password": os.getenv("TRACCAR_PASS_ROBERT"),
     },
+    #Carlos user
     289677525: {
         "username": os.getenv("TRACCAR_USER_E2"),
         "password": os.getenv("TRACCAR_PASS_E2"),
     },
+    #Usuario hello
     7248786725: {
         "username": os.getenv("TRACCAR_USER_E1"),
         "password": os.getenv("TRACCAR_PASS_E1"),
     },
+    #Usuario secom
     884922672: {
         "username": os.getenv("TRACCAR_USER_E2"),
         "password": os.getenv("TRACCAR_PASS_E2"),
